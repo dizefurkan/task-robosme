@@ -3,22 +3,15 @@ import InputText from "../../components/input-text";
 import Form from "../../components/form";
 
 import useLogin from "./useLogin";
-import { mergeResults } from "../../utils/validator";
+import PageHeader from "../../components/page-header";
 
 function LoginPage() {
-  const { validator, form, updateForm, results, setResults } = useLogin();
+  const { isRedirecting, form, updateForm, results, handleSubmit } = useLogin();
 
   return (
-    <section className="mx-auto max-w-md p-4">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          validator.validate();
-          const nextResults = validator.results();
-          setResults((prevResults) => mergeResults(prevResults, nextResults));
-        }}
-      >
+    <section className="container mx-auto max-w-md p-4">
+      <PageHeader title="Login" />
+      <Form onSubmit={handleSubmit}>
         <Form.FormItem
           label="Company Code"
           name="companyCode"
@@ -81,8 +74,8 @@ function LoginPage() {
             onChange={(value) => updateForm("password", value)}
           />
         </Form.FormItem>
-        <Button type="submit" block>
-          Submit
+        <Button htmlType="submit" block disabled={isRedirecting}>
+          {isRedirecting ? "Redirecting..." : "Login"}
         </Button>
       </Form>
     </section>

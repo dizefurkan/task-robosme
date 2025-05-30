@@ -1,10 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import Validator, {
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+
+import Validator from "../../utils/validator";
+import { mergeResults } from "../../utils/validator/rule";
+import {
   EmailRule,
-  mergeResults,
   PasswordRule,
   RequiredRule,
-} from "../../utils/validator";
+} from "../../utils/validator/rules";
+
+export const LS_EMAIL = "email";
+export const LS_IS_LOGGED_IN = "isLoggedIn";
 
 type FormModel = {
   companyCode: string;
@@ -14,6 +20,7 @@ type FormModel = {
 };
 
 export default function useLoginPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState<FormModel>({
     companyCode: "",
     region: "",
@@ -37,13 +44,15 @@ export default function useLoginPage() {
     setResults((prevResults) => mergeResults(prevResults, nextResults));
   }, [form]);
 
+  useEffect(() => {
+    if (localStorage.getItem(LS_IS_LOGGED_IN) === "true") {
+      alert("You are already logged in. Navigating to the list page.");
+      navigate("/list");
+    }
+  }, []);
+
   const [validator] = useState(() => {
-    const _validator = new Validator<{
-      companyCode: string;
-      region: string;
-      email: string;
-      password: string;
-    }>({
+    const _validator = new Validator({
       startValidation: false,
       rules: [
         new RequiredRule({
@@ -77,6 +86,21 @@ export default function useLoginPage() {
   });
 
   const [results, setResults] = useState(() => validator.results());
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    validator.validate();
+    const nextResults = validator.results();
+    setResults((prevResults) => mergeResults(prevResults, nextResults));
+
+    if (!validator.hasErrors()) {
+      setIsRedirecting(true);
+      localStorage.setItem(LS_IS_LOGGED_IN, "true");
+      localStorage.setItem(LS_EMAIL, form.email);
+      setTimeout(() => navigate("/list"), 1000);
+    }
+  }
 
   return {
     results,
@@ -84,5 +108,7 @@ export default function useLoginPage() {
     validator,
     updateForm,
     form,
+    handleSubmit,
+    isRedirecting,
   };
 }

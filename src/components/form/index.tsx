@@ -25,14 +25,13 @@ type FormItemProps = {
 
 Form.FormItem = function FormItem(props: FormItemProps) {
   return (
-    <div className="mb-4" {...props}>
+    <label className="mb-4 block">
       {props.label && (
-        <label
+        <div
           className={`block text-sm font-medium text-gray-700 mb-1 ${props.status === "error" ? `text-red-500` : ""}`}
-          htmlFor={props.name}
         >
           {props.label}
-        </label>
+        </div>
       )}
       {props.children}
       {props.help && (
@@ -42,6 +41,6 @@ Form.FormItem = function FormItem(props: FormItemProps) {
           {props.help}
         </p>
       )}
-    </div>
+    </label>
   );
 };
