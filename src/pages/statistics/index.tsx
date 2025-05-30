@@ -12,7 +12,11 @@ export default function Statistics() {
   const navigate = useNavigate();
 
   if (!data) {
-    return <div>Loading...</div>;
+    return (
+      <div className="h-dvh w-full flex flex-col items-center justify-center text-indigo-500">
+        <div className="animate-pulse mb-4">Loading...</div>
+      </div>
+    );
   }
 
   return (

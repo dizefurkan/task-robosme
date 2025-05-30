@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import API from "../../config/api";
-import { LS_POST_EDIT_DATA } from "../post";
+import { LS_POST_OVERWRITTEN_DATA } from "../post";
+import { LS_LAST_VISITED_POST_ID } from ".";
 
 export type Data = {
   body: string;
@@ -23,27 +24,28 @@ export default function useList() {
     fetch(API.baseUrl + API.posts)
       .then((response) => response.json())
       .then((_data) => {
-        const data = _data.map((item: Data) => {
-          const hasEditedPostsData = localStorage.getItem(LS_POST_EDIT_DATA);
+        const hasOverwrittenPostsData = localStorage.getItem(
+          LS_POST_OVERWRITTEN_DATA,
+        );
+        const data = hasOverwrittenPostsData
+          ? _data.map((item: Data) => {
+              try {
+                const editedPosts = JSON.parse(hasOverwrittenPostsData);
+                const existingIndex = editedPosts.findIndex(
+                  (post: Data) => post.id == item.id,
+                );
 
-          try {
-            if (hasEditedPostsData) {
-              const editedPosts = JSON.parse(hasEditedPostsData);
-              const existingIndex = editedPosts.findIndex(
-                (post: Data) => post.id == item.id,
-              );
-
-              if (existingIndex !== -1) {
-                return editedPosts[existingIndex];
-              } else {
-                return item;
-              }
-            }
-          } catch {}
-        });
+                if (existingIndex !== -1) {
+                  return editedPosts[existingIndex];
+                } else {
+                  return item;
+                }
+              } catch {}
+            })
+          : _data;
 
         setData(data);
-        const lastVisitedPostId = localStorage.getItem("lastVisitedPostId");
+        const lastVisitedPostId = localStorage.getItem(LS_LAST_VISITED_POST_ID);
         if (lastVisitedPostId) {
           const post = (data as Data[]).find(
             (item) => item.id === Number(lastVisitedPostId),
@@ -55,7 +57,7 @@ export default function useList() {
                 behavior: "smooth",
               });
             });
-            localStorage.removeItem("lastVisitedPostId");
+            localStorage.removeItem(LS_LAST_VISITED_POST_ID);
           }
         }
       })

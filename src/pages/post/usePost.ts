@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router";
 import API from "../../config/api";
 
 import type { Data } from "../post-list/useList";
-import { LS_POST_BACKUP_DATA, LS_POST_EDIT_DATA } from ".";
+import { LS_POST_BACKUP_DATA, LS_POST_OVERWRITTEN_DATA } from ".";
 
 export default function usePost() {
   const { postId } = useParams();
@@ -25,14 +25,16 @@ export default function usePost() {
       .then((_data) => {
         let data = _data as Data;
 
-        const hasEditedPostsData = localStorage.getItem(LS_POST_EDIT_DATA);
-        if (hasEditedPostsData) {
-          const editedPosts = JSON.parse(hasEditedPostsData);
-          const existingIndex = editedPosts.findIndex(
+        const hasOverwrittenPostsData = localStorage.getItem(
+          LS_POST_OVERWRITTEN_DATA,
+        );
+        if (hasOverwrittenPostsData) {
+          const overwrittenPosts = JSON.parse(hasOverwrittenPostsData);
+          const existingIndex = overwrittenPosts.findIndex(
             (post: Data) => post.id === data.id,
           );
           if (existingIndex !== -1) {
-            data = editedPosts[existingIndex];
+            data = overwrittenPosts[existingIndex];
             setIsEditedPost(true);
           }
         }
@@ -103,58 +105,77 @@ export default function usePost() {
 
   function handleSave() {
     if (postEditData) {
-      const editedPostsData = localStorage.getItem(LS_POST_EDIT_DATA);
-      let editedPosts = editedPostsData ? JSON.parse(editedPostsData) : [];
-      const existingIndex = editedPosts.findIndex(
+      const overwrittenPostsData = localStorage.getItem(
+        LS_POST_OVERWRITTEN_DATA,
+      );
+      let overwrittenPosts = overwrittenPostsData
+        ? JSON.parse(overwrittenPostsData)
+        : [];
+      const existingIndex = overwrittenPosts.findIndex(
         (post: Data) => post.id === postEditData.id,
       );
+
       if (existingIndex !== -1) {
-        editedPosts[existingIndex] = postEditData;
+        overwrittenPosts[existingIndex] = postEditData;
       } else {
-        editedPosts.push(postEditData);
+        overwrittenPosts.push(postEditData);
       }
 
       const backupPostsData = localStorage.getItem(LS_POST_BACKUP_DATA);
-      let backupPosts = backupPostsData ? JSON.parse(backupPostsData) : [];
+      const backupPosts = backupPostsData ? JSON.parse(backupPostsData) : [];
+      const backupPostIndex = backupPosts.findIndex(
+        (post: Data) => post.id === postEditData.id,
+      );
 
-      localStorage.setItem(
-        LS_POST_BACKUP_DATA,
-        JSON.stringify(backupPosts.concat(post)),
-      );
-      localStorage.setItem(LS_POST_EDIT_DATA, JSON.stringify(editedPosts));
+      const isChanged =
+        post?.title !== postEditData.title || post.body !== postEditData.body;
+      if (isChanged) {
+        if (backupPostIndex === -1) {
+          backupPosts.push(post);
+          localStorage.setItem(
+            LS_POST_BACKUP_DATA,
+            JSON.stringify(backupPosts),
+          );
+        }
+        localStorage.setItem(
+          LS_POST_OVERWRITTEN_DATA,
+          JSON.stringify(overwrittenPosts),
+        );
+      }
+      setIsEditedPost(isChanged);
       setEditMode(false);
-      setIsEditedPost(
-        post?.title !== postEditData.title || post.body !== postEditData.body,
-      );
       setPost(postEditData);
     }
   }
 
   function handleResetChanges() {
     const backupPostsData = localStorage.getItem(LS_POST_BACKUP_DATA);
-    if (backupPostsData) {
-      const posts = JSON.parse(backupPostsData);
-      const existingIndex = posts.findIndex(
-        (post: Data) => post.id === post?.id,
+    if (!backupPostsData) return;
+
+    const posts = JSON.parse(backupPostsData);
+    const existingIndex = posts.findIndex((post: Data) => post.id === post?.id);
+    if (existingIndex !== -1) {
+      setPost(posts[existingIndex]);
+      setPostEditData(posts[existingIndex]);
+      setEditMode(false);
+      setIsEditedPost(false);
+
+      posts.splice(existingIndex, 1);
+      localStorage.setItem(LS_POST_BACKUP_DATA, JSON.stringify(posts));
+
+      const overwrittenPostsData = localStorage.getItem(
+        LS_POST_OVERWRITTEN_DATA,
       );
-      if (existingIndex !== -1) {
-        setPost(posts[existingIndex]);
-        setPostEditData(posts[existingIndex]);
-        setEditMode(false);
-        setIsEditedPost(false);
-
-        posts.splice(existingIndex, 1);
-        localStorage.setItem(LS_POST_BACKUP_DATA, JSON.stringify(posts));
-
-        const editedPostsData = localStorage.getItem(LS_POST_EDIT_DATA);
-        const editedPosts = JSON.parse(editedPostsData || "[]");
-        const editedIndex = editedPosts.findIndex(
-          (post: Data) => post.id === post?.id,
+      const overwrittenPosts = JSON.parse(overwrittenPostsData || "[]");
+      const overwrittenPostIndex = overwrittenPosts.findIndex(
+        (overwrittenPost: Data) => overwrittenPost.id === post?.id,
+      );
+      if (overwrittenPostIndex !== -1) {
+        overwrittenPosts.splice(overwrittenPostIndex, 1);
+        localStorage.setItem(
+          LS_POST_OVERWRITTEN_DATA,
+          JSON.stringify(overwrittenPosts),
         );
-        if (editedIndex !== -1) {
-          editedPosts.splice(editedIndex, 1);
-          localStorage.setItem(LS_POST_EDIT_DATA, JSON.stringify(editedPosts));
-        }
       }
     }
   }

@@ -9,7 +9,7 @@ import Textarea from "../../components/textarea";
 import usePost from "./usePost";
 import { useNavigate } from "react-router";
 
-export const LS_POST_EDIT_DATA = "postEditData";
+export const LS_POST_OVERWRITTEN_DATA = "postOverwrittenData";
 export const LS_POST_BACKUP_DATA = "postBackupData";
 
 function Post() {

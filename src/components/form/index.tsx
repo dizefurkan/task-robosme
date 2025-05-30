@@ -3,12 +3,13 @@ import type { InputTextStatus } from "../input-text";
 
 type Props = {
   children: React.ReactNode;
+  className?: string;
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
 };
 
 function Form(props: Props) {
   return (
-    <form className="" {...props}>
+    <form className={props.className} {...props}>
       {props.children}
     </form>
   );
