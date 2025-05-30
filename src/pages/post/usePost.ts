@@ -20,7 +20,7 @@ export default function usePost() {
     document.title = "Post Page | " + postId;
 
     setIsLoading(true);
-    fetch(API.post("" + postId))
+    fetch(API.baseUrl + API.post("" + postId))
       .then((response) => response.json())
       .then((_data) => {
         let data = _data as Data;

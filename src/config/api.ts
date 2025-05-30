@@ -1,7 +1,8 @@
 const API = {
-  posts: "https://jsonplaceholder.typicode.com/posts",
-  post: (postId: string) =>
-    `https://jsonplaceholder.typicode.com/posts/${postId}`,
+  baseUrl: "https://jsonplaceholder.typicode.com",
+  users: "/users",
+  posts: "/posts",
+  post: (postId: string) => `/posts/${postId}`,
 };
 
 export default API;

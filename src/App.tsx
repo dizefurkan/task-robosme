@@ -5,6 +5,7 @@ const LazyLoginPage = lazy(() => import("./pages/login"));
 const LazyListPage = lazy(() => import("./pages/post-list"));
 const LazyPostPage = lazy(() => import("./pages/post"));
 const LazyNotFoundPage = lazy(() => import("./pages/not-found"));
+const LazyUsersStatisticsPage = lazy(() => import("./pages/statistics"));
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/post/:postId" element={<LazyPostPage />} />
       </Route>
       <Route path="/login" element={<LazyLoginPage />} />
+      <Route path="/statistics" element={<LazyUsersStatisticsPage />} />
       <Route path="/" element={<LazyLoginPage />} />
       <Route path="*" element={<LazyNotFoundPage />} />
     </Routes>

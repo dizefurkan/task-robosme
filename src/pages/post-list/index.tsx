@@ -43,6 +43,12 @@ const PostListHeader = () => {
                 children: `Welcome, ${localStorage.getItem(LS_EMAIL) || "Guest"}`,
               },
               {
+                children: "Go to Statistics",
+                onClick: () => {
+                  navigate("/statistics");
+                },
+              },
+              {
                 children: "Sign out",
                 onClick: () => {
                   localStorage.removeItem(LS_IS_LOGGED_IN);

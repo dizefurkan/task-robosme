@@ -20,7 +20,7 @@ export default function useList() {
     document.title = "List Page";
 
     setIsLoading(true);
-    fetch(API.posts)
+    fetch(API.baseUrl + API.posts)
       .then((response) => response.json())
       .then((_data) => {
         const data = _data.map((item: Data) => {
