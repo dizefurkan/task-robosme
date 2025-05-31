@@ -9,6 +9,7 @@ const PostListHeader = () => {
 
   return (
     <PageHeader
+      className="sticky top-0 z-10 bg-white py-2"
       title="Post List"
       rightContent={
         <div className="flex items-center gap-2">
