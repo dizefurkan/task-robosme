@@ -12,7 +12,7 @@ function PageHeader(props: Props) {
       className={`flex items-center justify-between my-4 ${props.className || ""}`}
     >
       {typeof props.title === "string" ? (
-        <h1 className="text-3xl">{props.title}</h1>
+        <h1 className="text-2xl sm:text-3xl">{props.title}</h1>
       ) : (
         props.title
       )}
